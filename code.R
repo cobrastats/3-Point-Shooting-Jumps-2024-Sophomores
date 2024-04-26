@@ -43,15 +43,17 @@ merged = fresh %>%
   mutate(jump = tpp_so-tpp_fr) %>% 
   arrange(desc(jump)) 
 
+#Select columns, add logos, and keep top 10
 fresh = fresh %>% select(player,team_so,tpp_fr,tpp_so,jump) %>% rename(team = team_so) %>% left_join(logos) %>% 
   arrange(desc(jump)) %>% slice_head(n=10) %>% mutate(jump=paste0("+",round(jump*100,1),"%"))
 
+#Manually edit 2 values that had rounding errors
 fresh$jump[7]="+8.0%"
 fresh$jump[4]="+10.0%"
 
 
 
-
+#Create Header for Table
 title_header <- glue(
   "<div style='display: flex; justify-content: space-between; align-items: center;'>
      <div style='flex-grow: 1;'>
@@ -61,11 +63,10 @@ title_header <- glue(
      <div>
        <img src='https://i.imgur.com/ZQjA0Hb.png' style='height: 70px; width: auto; vertical-align: right;'>
      </div>
-   </div>"
-)
+   </div>")
 
-library(dplyr)
-gms = fresh%>% select(player,team_logo,tpp_fr,tpp_so,jump) %>% 
+#Create Table
+plot = fresh %>% select(player,team_logo,tpp_fr,tpp_so,jump) %>% 
   gt() |> gt::fmt_markdown() %>% 
   tab_header(title = html(title_header))  %>% 
   gt_theme_538() %>% 
@@ -114,10 +115,10 @@ gms = fresh%>% select(player,team_logo,tpp_fr,tpp_so,jump) %>%
       columns = everything()
     )) %>% 
   tab_options(data_row.padding = px(3)) %>% 
-  tab_source_note(md("Criteria: 2.5 3PA/G + 75% of Team Games<br>Analysis by @cobrastats | Data via cbbdata | April 17, 2024"))|> 
+  tab_source_note(md("Criteria: 2.5 3PA/G + 75% of Team Games<br>Data via cbbdata"))|> 
   tab_style(
     style = cell_text(size = px(10)),
     locations = cells_source_notes()
-  )|>gtsave("/Users/connorbradley/Desktop/basketball data/3ptjump.png", expand = c(10,20,10,20), zoom=4)
+  )|>gtsave("/path/3ptjump.png", expand = c(10,20,10,20), zoom=4)
 
 
